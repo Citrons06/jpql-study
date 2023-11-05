@@ -7,10 +7,7 @@ import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static hellojpql.jpql.MemberType.ADMIN;
 
@@ -24,30 +21,42 @@ public class JpaMain {
 
         try {
 
+            Team team1 = new Team();
+            team1.setName("team1");
+            em.persist(team1);
+
+            Team team2 = new Team();
+            team2.setName("team2");
+            em.persist(team2);
+
             Member member1 = new Member();
             member1.setUsername("member1");
             member1.setAge(10);
-            member1.setType(ADMIN);
+            member1.setTeam(team1);
 
             Member member2 = new Member();
             member2.setUsername("member2");
             member2.setAge(10);
-            member2.setType(ADMIN);
+            member2.setTeam(team2);
+
+            Member member3 = new Member();
+            member3.setUsername("member3");
+            member3.setAge(10);
+            member3.setTeam(team2);
 
             em.persist(member1);
             em.persist(member2);
+            em.persist(member3);
 
-            em.flush();
+            //flush 자동 호출
+            int resultCount = em.createQuery("update Member m set m.age = 20")
+                    .executeUpdate();
+
             em.clear();
 
-            String jpql = "select group_concat(m.username) from Member m";
+            Member findMember = em.find(Member.class, member1.getId());
 
-            List<String> query = em.createQuery(jpql, String.class)
-                            .getResultList();
-
-            for (String s : query) {
-                System.out.println("s = " + s);
-            }
+            System.out.println("age = " + findMember.getAge());
 
 
             tx.commit();
